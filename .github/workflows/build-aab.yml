@@ -12,17 +12,14 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-      - name: Ver arquivos
+      - name: Build AAB
         run: |
+          ls -la
+          if [ -f "ai-hub-playstore/package.json" ]; then
+            cd ai-hub-playstore
+          fi
           pwd
           ls -la
-          find . -name "package.json" -type f
-      - name: Instalar e Gerar AAB
-        run: |
-          PKG=$(find . -name "package.json" | head -1)
-          DIR=$(dirname "$PKG")
-          echo "Pasta do app: $DIR"
-          cd $DIR
           npm install
           npx expo prebuild --platform android --clean
           cd android
