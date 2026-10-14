@@ -12,21 +12,20 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-      - name: Achar e Buildar App
+      - name: Arrumar src
         run: |
-          echo "=== Procurando package.json ==="
-          find . -name "package.json" -type f | head -20
-          APP_DIR=$(find . -name "package.json" -type f -exec dirname {} \; | head -1)
-          echo "Pasta encontrada: $APP_DIR"
-          cd "$APP_DIR"
-          pwd
-          ls -la
-          npm install
-          npx expo prebuild --platform android --clean
-          cd android
-          ./gradlew bundleRelease
-      - name: Upload AAB
-        uses: actions/upload-artifact@v4
+          if [ -f scr.zip ]; then mv scr.zip src.zip; fi
+          if [ -f src.zip ]; then
+            mkdir -p src
+            unzip -o src.zip -d src
+            if [ -d src/src ]; then mv src/src/* src/ 2>/dev/null; rmdir src/src || true; fi
+            rm src.zip
+          fi
+          ls -la src/
+      - run: npm install
+      - run: npx expo prebuild --platform android --clean
+      - run: cd android && ./gradlew bundleRelease
+      - uses: actions/upload-artifact@v4
         with:
           name: meu-app-aab
-          path: "**/app-release.aab"
+          path: android/app/build/outputs/bundle/release/app-release.aab
