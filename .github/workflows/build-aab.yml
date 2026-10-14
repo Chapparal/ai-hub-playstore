@@ -12,30 +12,22 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-      - name: Instalar dependencias
+      - name: Ver arquivos
         run: |
+          pwd
           ls -la
-          if [ -f package.json ]; then
-            npm install
-          elif [ -f ai-hub-playstore/package.json ]; then
-            cd ai-hub-playstore && npm install && cd ..
-          else
-            find . -type f -name "package.json" | head -20
-            npm install --prefix $(dirname $(find . -name "package.json" | head -1))
-          fi
-      - name: Gerar AAB
+          find . -name "package.json" -type f
+      - name: Instalar e Gerar AAB
         run: |
-          if [ -f package.json ]; then
-            npx expo prebuild --platform android --clean
-            cd android && ./gradlew bundleRelease
-          else
-            PKG_DIR=$(dirname $(find . -name "package.json" | head -1))
-            cd $PKG_DIR
-            npx expo prebuild --platform android --clean
-            cd android && ./gradlew bundleRelease
-          fi
+          PKG=$(find . -name "package.json" | head -1)
+          DIR=$(dirname "$PKG")
+          echo "Pasta do app: $DIR"
+          cd $DIR
+          npm install
+          npx expo prebuild --platform android --clean
+          cd android
+          ./gradlew bundleRelease
       - uses: actions/upload-artifact@v4
         with:
           name: meu-app-aab
-          path: |
-            **/android/app/build/outputs/bundle/release/app-release.aab
+          path: "**/app-release.aab"
