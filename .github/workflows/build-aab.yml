@@ -12,19 +12,21 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-      - name: Build AAB
+      - name: Achar e Buildar App
         run: |
-          ls -la
-          if [ -f "ai-hub-playstore/package.json" ]; then
-            cd ai-hub-playstore
-          fi
+          echo "=== Procurando package.json ==="
+          find . -name "package.json" -type f | head -20
+          APP_DIR=$(find . -name "package.json" -type f -exec dirname {} \; | head -1)
+          echo "Pasta encontrada: $APP_DIR"
+          cd "$APP_DIR"
           pwd
           ls -la
           npm install
           npx expo prebuild --platform android --clean
           cd android
           ./gradlew bundleRelease
-      - uses: actions/upload-artifact@v4
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
         with:
           name: meu-app-aab
           path: "**/app-release.aab"
